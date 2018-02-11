@@ -76,7 +76,7 @@ C     .. Parameters ..
       DOUBLE PRECISION tent6
       PARAMETER (tent6=1.0D6)
       DOUBLE PRECISION tol
-      PARAMETER (tol=1.0D-8)
+      PARAMETER (tol=1.0D-16)
       DOUBLE PRECISION atol
       PARAMETER (atol=1.0D-50)
       DOUBLE PRECISION zero,one,inf
