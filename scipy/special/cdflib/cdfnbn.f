@@ -102,7 +102,7 @@ C
 C**********************************************************************
 C     .. Parameters ..
       DOUBLE PRECISION tol
-      PARAMETER (tol=1.0D-16)
+      PARAMETER (tol=1.0D-15)
       DOUBLE PRECISION atol
       PARAMETER (atol=1.0D-50)
       DOUBLE PRECISION inf
