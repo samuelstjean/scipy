@@ -48,7 +48,7 @@ class TestBayes_mvs(object):
         mean, var, std = stats.bayes_mvs(data)
         assert_almost_equal(mean.statistic, 9.0)
         assert_allclose(mean.minmax, (7.1036502226125329, 10.896349777387467),
-                        rtol=1e-14)
+                        rtol=1e-15)
 
         assert_almost_equal(var.statistic, 10.0)
         assert_allclose(var.minmax, (3.1767242068607087, 24.45910381334018),
@@ -76,7 +76,7 @@ class TestMvsdist(object):
         mean, var, std = stats.mvsdist(data)
         assert_almost_equal(mean.mean(), 9.0)
         assert_allclose(mean.interval(0.9), (7.1036502226125329,
-                                             10.896349777387467), rtol=1e-14)
+                                             10.896349777387467), rtol=1e-15)
 
         assert_almost_equal(var.mean(), 10.0)
         assert_allclose(var.interval(0.9), (3.1767242068607087,
@@ -573,7 +573,7 @@ class TestFligner(object):
                                   11)
 
     def test_trimmed1(self):
-        # Perturb input to break ties in the transformed data 
+        # Perturb input to break ties in the transformed data
         # See https://github.com/scipy/scipy/pull/8042 for more details
         rs = np.random.RandomState(123)
         _perturb = lambda g: (np.asarray(g) + 1e-10*rs.randn(len(g))).tolist()
