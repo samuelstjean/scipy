@@ -52,7 +52,7 @@ class TestBayes_mvs(object):
         mean, var, std = stats.bayes_mvs(data)
         assert_almost_equal(mean.statistic, 9.0)
         assert_allclose(mean.minmax, (7.1036502226125329, 10.896349777387467),
-                        rtol=1e-15)
+                        rtol=1e-10)
 
         assert_almost_equal(var.statistic, 10.0)
         assert_allclose(var.minmax, (3.1767242068607087, 24.45910381334018),
