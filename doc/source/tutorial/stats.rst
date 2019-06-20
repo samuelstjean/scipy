@@ -5,6 +5,8 @@ Statistics (`scipy.stats`)
 .. sectionauthor:: Josef Perktold
 .. sectionauthor:: Nicky van Foreest
 
+.. currentmodule:: scipy
+
 Introduction
 ------------
 
@@ -79,7 +81,7 @@ with a leading underscore), for example ``veccdf``, are only available
 for internal calculation (those methods will give warnings when one tries to
 use them, and will be removed at some point).
 
-To obtain the `real` main methods, we list the methods of the frozen
+To obtain the *real* main methods, we list the methods of the frozen
 distribution. (We explain the meaning of a `frozen` distribution
 below).
 
@@ -102,9 +104,9 @@ introspection:
     >>> dist_discrete = [d for d in dir(stats) if
     ...                  isinstance(getattr(stats, d), stats.rv_discrete)]
     >>> print('number of continuous distributions: %d' % len(dist_continu))
-    number of continuous distributions: 97
+    number of continuous distributions: 98
     >>> print('number of discrete distributions:   %d' % len(dist_discrete))
-    number of discrete distributions:   13
+    number of discrete distributions:   14
 
 
 Common Methods
@@ -156,8 +158,11 @@ argument:
     >>> norm.rvs(size=3)
     array([-0.35687759,  1.34347647, -0.11710531])   # random
 
+.. TODO: Replace numpy.random HTML with `numpy.random` once NumPy updates doc
+
 Note that drawing random numbers relies on generators from
-:mod:`numpy.random` package. In the example above, the specific stream of
+`numpy.random <https://www.numpy.org/devdocs/reference/routines.random.html>`__
+package. In the example above, the specific stream of
 random numbers is not reproducible across runs. To achieve reproducibility,
 you can explicitly seed a global variable
 
@@ -502,7 +507,7 @@ distribution.
 Subclassing ``rv_discrete``
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
-In the following we use ``stats.rv_discrete`` to generate a discrete
+In the following we use `stats.rv_discrete` to generate a discrete
 distribution that has the probabilities of the truncated normal for the
 intervals centered around the integers.
 
@@ -566,27 +571,27 @@ the probabilities.
     >>> f, l = np.histogram(rvs, bins=gridlimits)
     >>> sfreq = np.vstack([gridint, f, probs*n_sample]).T
     >>> print(sfreq)
-    [[ -1.00000000e+01   0.00000000e+00   2.95019349e-02]
-     [ -9.00000000e+00   0.00000000e+00   1.32294142e-01]
-     [ -8.00000000e+00   0.00000000e+00   5.06497902e-01]
-     [ -7.00000000e+00   2.00000000e+00   1.65568919e+00]
-     [ -6.00000000e+00   1.00000000e+00   4.62125309e+00]
-     [ -5.00000000e+00   9.00000000e+00   1.10137298e+01]
-     [ -4.00000000e+00   2.60000000e+01   2.24137683e+01]
-     [ -3.00000000e+00   3.70000000e+01   3.89503370e+01]
-     [ -2.00000000e+00   5.10000000e+01   5.78004747e+01]
-     [ -1.00000000e+00   7.10000000e+01   7.32455414e+01]
-     [  0.00000000e+00   7.40000000e+01   7.92618251e+01]
-     [  1.00000000e+00   8.90000000e+01   7.32455414e+01]
-     [  2.00000000e+00   5.50000000e+01   5.78004747e+01]
-     [  3.00000000e+00   5.00000000e+01   3.89503370e+01]
-     [  4.00000000e+00   1.70000000e+01   2.24137683e+01]
-     [  5.00000000e+00   1.10000000e+01   1.10137298e+01]
-     [  6.00000000e+00   4.00000000e+00   4.62125309e+00]
-     [  7.00000000e+00   3.00000000e+00   1.65568919e+00]
-     [  8.00000000e+00   0.00000000e+00   5.06497902e-01]
-     [  9.00000000e+00   0.00000000e+00   1.32294142e-01]
-     [  1.00000000e+01   0.00000000e+00   2.95019349e-02]]
+    [[-1.00000000e+01  0.00000000e+00  2.95019349e-02]
+     [-9.00000000e+00  0.00000000e+00  1.32294142e-01]
+     [-8.00000000e+00  0.00000000e+00  5.06497902e-01]
+     [-7.00000000e+00  2.00000000e+00  1.65568919e+00]
+     [-6.00000000e+00  1.00000000e+00  4.62125309e+00]
+     [-5.00000000e+00  9.00000000e+00  1.10137298e+01]
+     [-4.00000000e+00  2.60000000e+01  2.24137683e+01]
+     [-3.00000000e+00  3.70000000e+01  3.89503370e+01]
+     [-2.00000000e+00  5.10000000e+01  5.78004747e+01]
+     [-1.00000000e+00  7.10000000e+01  7.32455414e+01]
+     [ 0.00000000e+00  7.40000000e+01  7.92618251e+01]
+     [ 1.00000000e+00  8.90000000e+01  7.32455414e+01]
+     [ 2.00000000e+00  5.50000000e+01  5.78004747e+01]
+     [ 3.00000000e+00  5.00000000e+01  3.89503370e+01]
+     [ 4.00000000e+00  1.70000000e+01  2.24137683e+01]
+     [ 5.00000000e+00  1.10000000e+01  1.10137298e+01]
+     [ 6.00000000e+00  4.00000000e+00  4.62125309e+00]
+     [ 7.00000000e+00  3.00000000e+00  1.65568919e+00]
+     [ 8.00000000e+00  0.00000000e+00  5.06497902e-01]
+     [ 9.00000000e+00  0.00000000e+00  1.32294142e-01]
+     [ 1.00000000e+01  0.00000000e+00  2.95019349e-02]]
 
 
 .. plot:: tutorial/examples/normdiscr_plot1.py
@@ -659,7 +664,7 @@ How do the some sample properties compare to their theoretical counterparts?
     >>> print(sstr % ('sample:', sm, sv, ss, sk))
     sample:        mean = 0.0141, variance = 1.2903, skew = 0.2165, kurtosis = 1.0556
 
-Note: stats.describe uses the unbiased estimator for the variance, while
+Note: `stats.describe` uses the unbiased estimator for the variance, while
 np.var is the biased estimator.
 
 
@@ -869,13 +874,13 @@ Test with sample with identical means:
     >>> rvs1 = stats.norm.rvs(loc=5, scale=10, size=500)
     >>> rvs2 = stats.norm.rvs(loc=5, scale=10, size=500)
     >>> stats.ttest_ind(rvs1, rvs2)
-    Ttest_indResult(statistic=-0.54890361750887051, pvalue=0.58319437486639591)
+    Ttest_indResult(statistic=-0.5489036175088705, pvalue=0.5831943748663959)
 
 Test with sample with different means:
 
     >>> rvs3 = stats.norm.rvs(loc=8, scale=10, size=500)
     >>> stats.ttest_ind(rvs1, rvs3)
-    Ttest_indResult(statistic=-4.5334142901750258, pvalue=6.5071281863890188e-06)
+    Ttest_indResult(statistic=-4.533414290175026, pvalue=6.507128186389019e-06)
 
 Kolmogorov-Smirnov test for two samples ks_2samp
 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
@@ -884,13 +889,13 @@ For the example where both samples are drawn from the same distribution,
 we cannot reject the null hypothesis since the pvalue is high
 
     >>> stats.ks_2samp(rvs1, rvs2)
-    Ks_2sampResult(statistic=0.025999999999999995, pvalue=0.99541195173064878)
+    Ks_2sampResult(statistic=0.026, pvalue=0.9959527565364388)
 
 In the second example, with different location, i.e. means, we can
 reject the null hypothesis since the pvalue is below 1%
 
     >>> stats.ks_2samp(rvs1, rvs3)
-    Ks_2sampResult(statistic=0.11399999999999999, pvalue=0.0027132103661283141)
+    Ks_2sampResult(statistic=0.114, pvalue=0.00299005061044668)
 
 Kernel Density Estimation
 -------------------------
@@ -901,14 +906,14 @@ density estimation.  The most well-known tool to do this is the histogram.
 A histogram is a useful tool for visualization (mainly because everyone
 understands it), but doesn't use the available data very efficiently.  Kernel
 density estimation (KDE) is a more efficient tool for the same task.  The
-:func:`gaussian_kde` estimator can be used to estimate the PDF of univariate as
+:func:`~stats.gaussian_kde` estimator can be used to estimate the PDF of univariate as
 well as multivariate data.  It works best if the data is unimodal.
 
 
 Univariate estimation
 ^^^^^^^^^^^^^^^^^^^^^
 
-We start with a minimal amount of data in order to see how :func:`gaussian_kde`
+We start with a minimal amount of data in order to see how :func:`~stats.gaussian_kde`
 works, and what the different options for bandwidth selection do.  The data
 sampled from the PDF is show as blue dashes at the bottom of the figure (this
 is called a rug plot):
@@ -1022,7 +1027,7 @@ non-uniform (adaptive) bandwidth.
 Multivariate estimation
 ^^^^^^^^^^^^^^^^^^^^^^^
 
-With :func:`gaussian_kde` we can perform multivariate as well as univariate
+With :func:`~stats.gaussian_kde` we can perform multivariate as well as univariate
 estimation.  We demonstrate the bivariate case.  First we generate some random
 data with a model in which the two variates are correlated.
 

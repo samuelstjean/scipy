@@ -1,6 +1,6 @@
 """
 Copyright (C) 2010 David Fong and Michael Saunders
-Distributed under the same license as Scipy
+Distributed under the same license as SciPy
 
 Testing Code for LSMR.
 
@@ -174,6 +174,7 @@ def lsmrtest(m, n, damp):
     print(str)
     print(str2)
     print(' ')
+
 
 if __name__ == "__main__":
     lsmrtest(20,10,0)

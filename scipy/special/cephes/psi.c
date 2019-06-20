@@ -61,7 +61,7 @@
  * (C) Copyright John Maddock 2006.
  * Use, modification and distribution are subject to the
  * Boost Software License, Version 1.0. (See accompanying file
- * LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+ * LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
  */
 
 #include "mconf.h"
@@ -77,7 +77,7 @@ static double A[] = {
 };
 
 
-double digamma_imp_1_2(double x)
+static double digamma_imp_1_2(double x)
 {
     /*
      * Rational approximation on [1, 2] taken from Boost.
@@ -127,7 +127,7 @@ double digamma_imp_1_2(double x)
 }
 
 
-double psi_asy(double x)
+static double psi_asy(double x)
 {
     double y, z;
 

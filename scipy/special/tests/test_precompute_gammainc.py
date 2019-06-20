@@ -81,9 +81,7 @@ def test_d():
                    (9, 0, -mp.mpf('0.596761290192746250124390067179e-3')),
                    (9, 12, mp.mpf('0.870823417786464116761231237189e-6'))]
         d = compute_d(10, 13)
-        res = []
-        for k, n, std in dataset:
-            res.append(d[k][n])
+        res = [d[k][n] for k, n, std in dataset]
         std = map(lambda x: x[2], dataset)
         mp_assert_allclose(res, std)
 
@@ -99,11 +97,11 @@ def test_gammainc():
                         nan_ok=False, rtol=1e-17, n=50, dps=50)
 
 
+@pytest.mark.xslow
 @check_version(mp, '0.19')
 def test_gammaincc():
-    # Quick check that the gammaincc in
-    # special._precompute.gammainc_data agrees with mpmath's
-    # gammainc.
+    # Check that the gammaincc in special._precompute.gammainc_data
+    # agrees with mpmath's gammainc.
     assert_mpmath_equal(lambda a, x: gammaincc(a, x, dps=1000),
                         lambda a, x: mp.gammainc(a, a=x, regularized=True),
                         [Arg(20, 100), Arg(20, 100)],
@@ -114,4 +112,3 @@ def test_gammaincc():
                         lambda a, x: mp.gammainc(a, a=x, regularized=True),
                         [IntArg(1, 100), Arg(0, 100)],
                         nan_ok=False, rtol=1e-17, n=50, dps=50)
-

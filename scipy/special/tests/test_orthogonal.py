@@ -286,25 +286,25 @@ class TestGenlaguerre(object):
 
 def verify_gauss_quad(root_func, eval_func, weight_func, a, b, N,
                       rtol=1e-15, atol=1e-14):
-        # this test is copied from numpy's TestGauss in test_hermite.py
-        x, w, mu = root_func(N, True)
+    # this test is copied from numpy's TestGauss in test_hermite.py
+    x, w, mu = root_func(N, True)
 
-        n = np.arange(N)
-        v = eval_func(n[:,np.newaxis], x)
-        vv = np.dot(v*w, v.T)
-        vd = 1 / np.sqrt(vv.diagonal())
-        vv = vd[:, np.newaxis] * vv * vd
-        assert_allclose(vv, np.eye(N), rtol, atol)
+    n = np.arange(N)
+    v = eval_func(n[:,np.newaxis], x)
+    vv = np.dot(v*w, v.T)
+    vd = 1 / np.sqrt(vv.diagonal())
+    vv = vd[:, np.newaxis] * vv * vd
+    assert_allclose(vv, np.eye(N), rtol, atol)
 
-        # check that the integral of 1 is correct
-        assert_allclose(w.sum(), mu, rtol, atol)
+    # check that the integral of 1 is correct
+    assert_allclose(w.sum(), mu, rtol, atol)
 
-        # compare the results of integrating a function with quad.
-        f = lambda x: x**3 - 3*x**2 + x - 2
-        resI = integrate.quad(lambda x: f(x)*weight_func(x), a, b)
-        resG = np.vdot(f(x), w)
-        rtol = 1e-6 if 1e-6 < resI[1] else resI[1] * 10
-        assert_allclose(resI[0], resG, rtol=rtol)
+    # compare the results of integrating a function with quad.
+    f = lambda x: x**3 - 3*x**2 + x - 2
+    resI = integrate.quad(lambda x: f(x)*weight_func(x), a, b)
+    resG = np.vdot(f(x), w)
+    rtol = 1e-6 if 1e-6 < resI[1] else resI[1] * 10
+    assert_allclose(resI[0], resG, rtol=rtol)
 
 def test_roots_jacobi():
     rf = lambda a, b: lambda n, mu: sc.roots_jacobi(n, a, b, mu)
@@ -328,7 +328,7 @@ def test_roots_jacobi():
 
     vgq(rf(0.9, 2), ef(0.9, 2), wf(0.9, 2), -1., 1., 5)
     vgq(rf(0.9, 2), ef(0.9, 2), wf(0.9, 2), -1., 1., 25, atol=1e-13)
-    vgq(rf(0.9, 2), ef(0.9, 2), wf(0.9, 2), -1., 1., 100, atol=2e-13)
+    vgq(rf(0.9, 2), ef(0.9, 2), wf(0.9, 2), -1., 1., 100, atol=3e-13)
 
     vgq(rf(18.24, 27.3), ef(18.24, 27.3), wf(18.24, 27.3), -1., 1., 5)
     vgq(rf(18.24, 27.3), ef(18.24, 27.3), wf(18.24, 27.3), -1., 1., 25)
@@ -531,7 +531,7 @@ def test_roots_gegenbauer():
     # to a scaled down copy of T_n(x) there.
     vgq(rootf(0), orth.eval_chebyt, weightf(0), -1., 1., 5)
     vgq(rootf(0), orth.eval_chebyt, weightf(0), -1., 1., 25)
-    vgq(rootf(0), orth.eval_chebyt, weightf(0), -1., 1., 100)
+    vgq(rootf(0), orth.eval_chebyt, weightf(0), -1., 1., 100, atol=1e-12)
 
     x, w = sc.roots_gegenbauer(5, 2, False)
     y, v, m = sc.roots_gegenbauer(5, 2, True)
@@ -549,7 +549,7 @@ def test_roots_chebyt():
     weightf = orth.chebyt(5).weight_func
     verify_gauss_quad(sc.roots_chebyt, orth.eval_chebyt, weightf, -1., 1., 5)
     verify_gauss_quad(sc.roots_chebyt, orth.eval_chebyt, weightf, -1., 1., 25)
-    verify_gauss_quad(sc.roots_chebyt, orth.eval_chebyt, weightf, -1., 1., 100)
+    verify_gauss_quad(sc.roots_chebyt, orth.eval_chebyt, weightf, -1., 1., 100, atol=1e-12)
 
     x, w = sc.roots_chebyt(5, False)
     y, v, m = sc.roots_chebyt(5, True)
@@ -561,6 +561,12 @@ def test_roots_chebyt():
 
     assert_raises(ValueError, sc.roots_chebyt, 0)
     assert_raises(ValueError, sc.roots_chebyt, 3.3)
+
+def test_chebyt_symmetry():
+    x, w = sc.roots_chebyt(21)
+    pos, neg = x[:10], x[11:]
+    assert_equal(neg, -pos[::-1])
+    assert_equal(x[10], 0)
 
 def test_roots_chebyu():
     weightf = orth.chebyu(5).weight_func
@@ -583,7 +589,7 @@ def test_roots_chebyc():
     weightf = orth.chebyc(5).weight_func
     verify_gauss_quad(sc.roots_chebyc, orth.eval_chebyc, weightf, -2., 2., 5)
     verify_gauss_quad(sc.roots_chebyc, orth.eval_chebyc, weightf, -2., 2., 25)
-    verify_gauss_quad(sc.roots_chebyc, orth.eval_chebyc, weightf, -2., 2., 100)
+    verify_gauss_quad(sc.roots_chebyc, orth.eval_chebyc, weightf, -2., 2., 100, atol=1e-12)
 
     x, w = sc.roots_chebyc(5, False)
     y, v, m = sc.roots_chebyc(5, True)
@@ -748,4 +754,3 @@ def test_roots_genlaguerre():
 def test_gh_6721():
     # Regresssion test for gh_6721. This should not raise.
     sc.chebyt(65)(0.2)
-

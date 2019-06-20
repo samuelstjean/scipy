@@ -10,6 +10,24 @@ a future release.
 
 .. versionadded:: 0.12.0
 
+.. note::
+
+    The common ``overwrite_<>`` option in many routines, allows the
+    input arrays to be overwritten to avoid extra memory allocation.
+    However this requires the array to satisfy two conditions
+    which are memory order and the data type to match exactly the
+    order and the type expected by the routine.
+
+    As an example, if you pass a double precision float array to any
+    ``S....`` routine which expects single precision arguments, f2py
+    will create an intermediate array to match the argument types and
+    overwriting will be performed on that intermediate array.
+
+    Similarly, if a C-contiguous array is passed, f2py will pass a
+    FORTRAN-contiguous array internally. Please make sure that these
+    details are satisfied. More information can be found in the f2py
+    documentation.
+
 .. warning::
 
    These functions do little to no error checking.
@@ -20,6 +38,7 @@ Finding functions
 -----------------
 
 .. autosummary::
+   :toctree: generated/
 
    get_lapack_funcs
 
@@ -49,6 +68,11 @@ All functions
    dgebal
    cgebal
    zgebal
+
+   sgecon
+   dgecon
+   cgecon
+   zgecon
 
    sgees
    dgees
@@ -80,15 +104,15 @@ All functions
    cgehrd_lwork
    zgehrd_lwork
 
-   sgelss
-   dgelss
-   cgelss
-   zgelss
+   sgels
+   dgels
+   cgels
+   zgels
 
-   sgelss_lwork
-   dgelss_lwork
-   cgelss_lwork
-   zgelss_lwork
+   sgels_lwork
+   dgels_lwork
+   cgels_lwork
+   zgels_lwork
 
    sgelsd
    dgelsd
@@ -99,6 +123,16 @@ All functions
    dgelsd_lwork
    cgelsd_lwork
    zgelsd_lwork
+
+   sgelss
+   dgelss
+   cgelss
+   zgelss
+
+   sgelss_lwork
+   dgelss_lwork
+   cgelss_lwork
+   zgelss_lwork
 
    sgelsy
    dgelsy
@@ -135,6 +169,11 @@ All functions
    cgesdd_lwork
    zgesdd_lwork
 
+   sgesv
+   dgesv
+   cgesv
+   zgesv
+
    sgesvd
    dgesvd
    cgesvd
@@ -145,70 +184,10 @@ All functions
    cgesvd_lwork
    zgesvd_lwork
 
-   sgesv
-   dgesv
-   cgesv
-   zgesv
-
    sgesvx
    dgesvx
    cgesvx
    zgesvx
-
-   sgecon
-   dgecon
-   cgecon
-   zgecon
-
-   ssysv
-   dsysv
-   csysv
-   zsysv
-
-   ssysv_lwork
-   dsysv_lwork
-   csysv_lwork
-   zsysv_lwork
-
-   ssysvx
-   dsysvx
-   csysvx
-   zsysvx
-
-   ssysvx_lwork
-   dsysvx_lwork
-   csysvx_lwork
-   zsysvx_lwork
-
-   ssygst
-   dsygst
-
-   ssytrd
-   dsytrd
-
-   ssytrd_lwork
-   dsytrd_lwork
-
-   chetrd
-   zhetrd
-
-   chetrd_lwork
-   zhetrd_lwork
-
-   chesv
-   zhesv
-
-   chesv_lwork
-   zhesv_lwork
-
-   chesvx
-   zhesvx
-
-   chesvx_lwork
-   zhesvx_lwork
-
-   chegst
-   zhegst
 
    sgetrf
    dgetrf
@@ -240,11 +219,29 @@ All functions
    cggev
    zggev
 
+   sgglse
+   dgglse
+   cgglse
+   zgglse
+
+   sgglse_lwork
+   dgglse_lwork
+   cgglse_lwork
+   zgglse_lwork
+
+   sgtsv
+   dgtsv
+   cgtsv
+   zgtsv
+
    chbevd
    zhbevd
 
    chbevx
    zhbevx
+
+   checon
+   zhecon
 
    cheev
    zheev
@@ -255,6 +252,9 @@ All functions
    cheevr
    zheevr
 
+   chegst
+   zhegst
+
    chegv
    zhegv
 
@@ -263,6 +263,41 @@ All functions
 
    chegvx
    zhegvx
+
+   chesv
+   zhesv
+
+   chesv_lwork
+   zhesv_lwork
+
+   chesvx
+   zhesvx
+
+   chesvx_lwork
+   zhesvx_lwork
+
+   chetrd
+   zhetrd
+
+   chetrd_lwork
+   zhetrd_lwork
+
+   chetrf
+   zhetrf
+
+   chetrf_lwork
+   zhetrf_lwork
+
+   chfrk
+   zhfrk
+
+   slamch
+   dlamch
+
+   slange
+   dlange
+   clange
+   zlange
 
    slarf
    dlarf
@@ -292,6 +327,26 @@ All functions
    clauum
    zlauum
 
+   sorghr
+   dorghr
+   sorghr_lwork
+   dorghr_lwork
+
+   sorgqr
+   dorgqr
+
+   sorgrq
+   dorgrq
+
+   sormqr
+   dormqr
+
+   sormrz
+   dormrz
+
+   sormrz_lwork
+   dormrz_lwork
+
    spbsv
    dpbsv
    cpbsv
@@ -307,6 +362,26 @@ All functions
    cpbtrs
    zpbtrs
 
+   spftrf
+   dpftrf
+   cpftrf
+   zpftrf
+
+   spftri
+   dpftri
+   cpftri
+   zpftri
+
+   spftrs
+   dpftrs
+   cpftrs
+   zpftrs
+
+   spocon
+   dpocon
+   cpocon
+   zpocon
+
    sposv
    dposv
    cposv
@@ -316,11 +391,6 @@ All functions
    dposvx
    cposvx
    zposvx
-
-   spocon
-   dpocon
-   cpocon
-   zpocon
 
    spotrf
    dpotrf
@@ -337,8 +407,145 @@ All functions
    cpotrs
    zpotrs
 
+   sptsv
+   dptsv
+   cptsv
+   zptsv
+
    crot
    zrot
+
+   ssbev
+   dsbev
+
+   ssbevd
+   dsbevd
+
+   ssbevx
+   dsbevx
+
+   ssfrk
+   dsfrk
+
+   sstebz
+   dstebz
+
+   sstein
+   dstein
+
+   sstemr
+   dstemr
+
+   sstemr_lwork
+   dstemr_lwork
+
+   ssterf
+   dsterf
+
+   sstev
+   dstev
+
+   ssycon
+   dsycon
+   csycon
+   zsycon
+
+   ssyconv
+   dsyconv
+   csyconv
+   zsyconv
+
+   ssyev
+   dsyev
+
+   ssyevd
+   dsyevd
+
+   ssyevr
+   dsyevr
+
+   ssygst
+   dsygst
+
+   ssygv
+   dsygv
+
+   ssygvd
+   dsygvd
+
+   ssygvx
+   dsygvx
+
+   ssysv
+   dsysv
+   csysv
+   zsysv
+
+   ssysv_lwork
+   dsysv_lwork
+   csysv_lwork
+   zsysv_lwork
+
+   ssysvx
+   dsysvx
+   csysvx
+   zsysvx
+
+   ssysvx_lwork
+   dsysvx_lwork
+   csysvx_lwork
+   zsysvx_lwork
+
+   ssytf2
+   dsytf2
+   csytf2
+   zsytf2
+
+   ssytrd
+   dsytrd
+
+   ssytrd_lwork
+   dsytrd_lwork
+
+   ssytrf
+   dsytrf
+   csytrf
+   zsytrf
+
+   ssytrf_lwork
+   dsytrf_lwork
+   csytrf_lwork
+   zsytrf_lwork
+
+   stfsm
+   dtfsm
+   ctfsm
+   ztfsm
+
+   stfttp
+   dtfttp
+   ctfttp
+   ztfttp
+
+   stfttr
+   dtfttr
+   ctfttr
+   ztfttr
+
+   stgsen
+   dtgsen
+   ctgsen
+   ztgsen
+
+   stpttf
+   dtpttf
+   ctpttf
+   ztpttf
+
+   stpttr
+   dtpttr
+   ctpttr
+   ztpttr
 
    strsyl
    dtrsyl
@@ -355,8 +562,31 @@ All functions
    ctrtrs
    ztrtrs
 
+   strttf
+   dtrttf
+   ctrttf
+   ztrttf
+
+   strttp
+   dtrttp
+   ctrttp
+   ztrttp
+
+   stzrzf
+   dtzrzf
+   ctzrzf
+   ztzrzf
+
+   stzrzf_lwork
+   dtzrzf_lwork
+   ctzrzf_lwork
+   ztzrzf_lwork
+
    cunghr
    zunghr
+
+   cunghr_lwork
+   zunghr_lwork
 
    cungqr
    zungqr
@@ -367,76 +597,11 @@ All functions
    cunmqr
    zunmqr
 
-   sgtsv
-   dgtsv
-   cgtsv
-   zgtsv
+   cunmrz
+   zunmrz
 
-   sptsv
-   dptsv
-   cptsv
-   zptsv
-
-   slamch
-   dlamch
-
-   sorghr
-   dorghr
-   sorgqr
-   dorgqr
-
-   sorgrq
-   dorgrq
-
-   sormqr
-   dormqr
-
-   ssbev
-   dsbev
-
-   ssbevd
-   dsbevd
-
-   ssbevx
-   dsbevx
-
-   sstebz
-   dstebz
-
-   sstemr
-   dstemr
-
-   ssterf
-   dsterf
-
-   sstein
-   dstein
-
-   sstev
-   dstev
-
-   ssyev
-   dsyev
-
-   ssyevd
-   dsyevd
-
-   ssyevr
-   dsyevr
-
-   ssygv
-   dsygv
-
-   ssygvd
-   dsygvd
-
-   ssygvx
-   dsygvx
-
-   slange
-   dlange
-   clange
-   zlange
+   cunmrz_lwork
+   zunmrz_lwork
 
    ilaver
 
@@ -446,16 +611,8 @@ All functions
 #
 
 from __future__ import division, print_function, absolute_import
-
-__all__ = ['get_lapack_funcs']
-
 import numpy as _np
-
 from .blas import _get_funcs
-
-# Backward compatibility:
-from .blas import find_best_blas_type as find_best_lapack_type
-
 from scipy.linalg import _flapack
 try:
     from scipy.linalg import _clapack
@@ -463,6 +620,7 @@ except ImportError:
     _clapack = None
 
 # Backward compatibility
+from .blas import find_best_blas_type as find_best_lapack_type
 from scipy._lib._util import DeprecatedImport as _DeprecatedImport
 clapack = _DeprecatedImport("scipy.linalg.blas.clapack", "scipy.linalg.lapack")
 flapack = _DeprecatedImport("scipy.linalg.blas.flapack", "scipy.linalg.lapack")
@@ -471,6 +629,8 @@ flapack = _DeprecatedImport("scipy.linalg.blas.flapack", "scipy.linalg.lapack")
 empty_module = None
 from scipy.linalg._flapack import *
 del empty_module
+
+__all__ = ['get_lapack_funcs']
 
 _dep_message = """The `*gegv` family of routines has been deprecated in
 LAPACK 3.6.0 in favor of the `*ggev` family of routines.

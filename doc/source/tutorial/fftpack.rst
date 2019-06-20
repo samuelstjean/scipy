@@ -1,7 +1,7 @@
 Fourier Transforms (:mod:`scipy.fftpack`)
 =========================================
 
-.. sectionauthor:: Scipy Developers
+.. sectionauthor:: SciPy Developers
 
 .. currentmodule:: scipy.fftpack
 
@@ -23,7 +23,7 @@ Fourier analysis and its applications.
    PyFFTW_ provides a way to replace a number of functions in `scipy.fftpack`
    with its own functions, which are usually significantly faster, via
    pyfftw.interfaces_.  Because PyFFTW_ relies on the GPL-licensed FFTW_ it
-   cannot be included in Scipy.  Users for whom the speed of FFT routines is
+   cannot be included in SciPy.  Users for whom the speed of FFT routines is
    critical should consider installing PyFFTW_.
 
 
@@ -53,7 +53,7 @@ respectively as shown in the following example.
 >>> x = np.array([1.0, 2.0, 1.0, -1.0, 1.5])
 >>> y = fft(x)
 >>> y
-array([ 4.50000000+0.j        ,  2.08155948-1.65109876j,
+array([ 4.5       +0.j        ,  2.08155948-1.65109876j,
        -1.83155948+1.60822041j, -1.83155948-1.60822041j,
         2.08155948+1.65109876j])
 >>> yinv = ifft(y)
@@ -127,7 +127,7 @@ truncated for illustrative purposes).
     >>> from scipy.signal import blackman
     >>> w = blackman(N)
     >>> ywf = fft(y*w)
-    >>> xf = np.linspace(0.0, 1.0/(2.0*T), N/2)
+    >>> xf = np.linspace(0.0, 1.0/(2.0*T), N//2)
     >>> import matplotlib.pyplot as plt
     >>> plt.semilogy(xf[1:N//2], 2.0/N * np.abs(yf[1:N//2]), '-b')
     >>> plt.semilogy(xf[1:N//2], 2.0/N * np.abs(ywf[1:N//2]), '-r')
@@ -137,7 +137,7 @@ truncated for illustrative purposes).
 
 
 In case the sequence x is complex-valued, the spectrum is no longer symmetric.
-To simplify working wit the FFT functions, scipy provides the following two
+To simplify working with the FFT functions, scipy provides the following two
 helper functions.
 
 The function :func:`fftfreq` returns the FFT sample frequency points.
@@ -189,8 +189,8 @@ coefficients with this special ordering.
 >>> from scipy.fftpack import fft, rfft, irfft
 >>> x = np.array([1.0, 2.0, 1.0, -1.0, 1.5, 1.0])
 >>> fft(x)
-array([ 5.50+0.j        ,  2.25-0.4330127j , -2.75-1.29903811j,
-        1.50+0.j        , -2.75+1.29903811j,  2.25+0.4330127j ])
+array([ 5.5 +0.j        ,  2.25-0.4330127j , -2.75-1.29903811j,
+        1.5 +0.j        , -2.75+1.29903811j,  2.25+0.4330127j ])
 >>> yr = rfft(x)
 >>> yr
 array([ 5.5       ,  2.25      , -0.4330127 , -2.75      , -1.29903811,
@@ -199,7 +199,7 @@ array([ 5.5       ,  2.25      , -0.4330127 , -2.75      , -1.29903811,
 array([ 1. ,  2. ,  1. , -1. ,  1.5,  1. ])
 >>> x = np.array([1.0, 2.0, 1.0, -1.0, 1.5])
 >>> fft(x)
-array([ 4.50000000+0.j        ,  2.08155948-1.65109876j,
+array([ 4.5       +0.j        ,  2.08155948-1.65109876j,
        -1.83155948+1.60822041j, -1.83155948-1.60822041j,
         2.08155948+1.65109876j])
 >>> yr = rfft(x)
@@ -255,7 +255,7 @@ arrays in frequency domain.
 Discrete Cosine Transforms
 --------------------------
 
-Scipy provides a DCT with the function :func:`dct` and a corresponding IDCT
+SciPy provides a DCT with the function :func:`dct` and a corresponding IDCT
 with the function :func:`idct`. There are 8 types of the DCT [WPC]_, [Mak]_;
 however, only the first 3 types are implemented in scipy. "The" DCT generally
 refers to DCT type 2, and "the" Inverse DCT generally refers to DCT type 3. In
@@ -270,13 +270,13 @@ MATLAB dct(x).
 Type I DCT
 __________
 
-Scipy uses the following definition of the unnormalized DCT-I
+SciPy uses the following definition of the unnormalized DCT-I
 (``norm='None'``):
 
 .. math::
 
     y[k] = x_0 + (-1)^k x_{N-1} + 2\sum_{n=1}^{N-2} x[n]
-    \cos\left({\pi nk\over N-1}\right),
+    \cos\left(\frac{\pi nk}{N-1}\right),
     \qquad 0 \le k < N.
 
 Only ``None`` is supported as normalization mode for DCT-I. Note also that the
@@ -285,7 +285,7 @@ DCT-I is only supported for input size > 1
 Type II DCT
 ___________
 
-Scipy uses the following definition of the unnormalized DCT-II
+SciPy uses the following definition of the unnormalized DCT-II
 (``norm='None'``):
 
 .. math::
@@ -312,7 +312,7 @@ In this case, the DCT "base functions" :math:`\phi_k[n] = 2 f \cos
 Type III DCT
 ____________
 
-Scipy uses the following definition of the unnormalized DCT-III
+SciPy uses the following definition of the unnormalized DCT-III
 (``norm='None'``):
 
 .. math::
@@ -403,7 +403,7 @@ provides a five-fold compression rate.
 Discrete Sine Transforms
 ------------------------
 
-Scipy provides a DST [Mak]_ with the function :func:`dst` and a corresponding IDST
+SciPy provides a DST [Mak]_ with the function :func:`dst` and a corresponding IDST
 with the function :func:`idst`.
 
 There are theoretically 8 types of the DST for different combinations of
@@ -413,7 +413,7 @@ types are implemented in scipy.
 Type I DST
 __________
 
-DST-I assumes the input is odd around n=-1 and n=N. Scipy uses the following
+DST-I assumes the input is odd around n=-1 and n=N. SciPy uses the following
 definition of the unnormalized DST-I (``norm='None'``):
 
 .. math::
@@ -428,7 +428,7 @@ own inverse, up to a factor `2(N+1)`.
 Type II DST
 ___________
 
-DST-II assumes the input is odd around n=-1/2 and even around n=N. Scipy uses
+DST-II assumes the input is odd around n=-1/2 and even around n=N. SciPy uses
 the following definition of the unnormalized DST-II (``norm='None'``):
 
 .. math::
@@ -439,7 +439,7 @@ the following definition of the unnormalized DST-II (``norm='None'``):
 Type III DST
 ____________
 
-DST-III assumes the input is odd around n=-1 and even around n=N-1. Scipy uses
+DST-III assumes the input is odd around n=-1 and even around n=N-1. SciPy uses
 the following definition of the unnormalized DST-III (``norm='None'``):
 
 .. math::
@@ -480,7 +480,7 @@ Cache Destruction
 To accelerate repeat transforms on arrays of the same shape and dtype,
 scipy.fftpack keeps a cache of the prime factorization of length of the array
 and pre-computed trigonometric functions.  These caches can be destroyed by
-calling the appropriate function in `scipy.fftpack._fftpack`.  
+calling the appropriate function in ``scipy.fftpack._fftpack``.
 dst(type=1) and idst(type=1) share a cache (``*dst1_cache``).  As do dst(type=2),
 dst(type=3), idst(type=3), and idst(type=3) (``*dst2_cache``).
 
@@ -498,15 +498,15 @@ References
 
 .. [Mak] J. Makhoul, 1980, 'A Fast Cosine Transform in One and Two Dimensions',
        `IEEE Transactions on acoustics, speech and signal processing`
-       vol. 28(1), pp. 27-34, http://dx.doi.org/10.1109/TASSP.1980.1163351
+       vol. 28(1), pp. 27-34, :doi:`10.1109/TASSP.1980.1163351`
 
-.. [WPW] http://en.wikipedia.org/wiki/Window_function
+.. [WPW] https://en.wikipedia.org/wiki/Window_function
 
-.. [WPC] http://en.wikipedia.org/wiki/Discrete_cosine_transform
+.. [WPC] https://en.wikipedia.org/wiki/Discrete_cosine_transform
 
-.. [WPS] http://en.wikipedia.org/wiki/Discrete_sine_transform
+.. [WPS] https://en.wikipedia.org/wiki/Discrete_sine_transform
 
 
 .. _FFTW: http://www.fftw.org/
-.. _PyFFTW: http://hgomersall.github.io/pyFFTW/index.html
-.. _pyfftw.interfaces: http://hgomersall.github.io/pyFFTW/pyfftw/interfaces/interfaces.html
+.. _PyFFTW: https://hgomersall.github.io/pyFFTW/
+.. _pyfftw.interfaces: https://hgomersall.github.io/pyFFTW/pyfftw/interfaces/interfaces.html

@@ -42,6 +42,9 @@ def lsmr(A, b, damp=0.0, atol=1e-6, btol=1e-6, conlim=1e8,
     ----------
     A : {matrix, sparse matrix, ndarray, LinearOperator}
         Matrix A in the linear system.
+        Alternatively, ``A`` can be a linear operator which can
+        produce ``Ax`` and ``A^T x`` using, e.g.,
+        ``scipy.sparse.linalg.LinearOperator``.
     b : array_like, shape (m,)
         Vector b in the linear system.
     damp : float
@@ -134,8 +137,8 @@ def lsmr(A, b, damp=0.0, atol=1e-6, btol=1e-6, conlim=1e8,
     .. [1] D. C.-L. Fong and M. A. Saunders,
            "LSMR: An iterative algorithm for sparse least-squares problems",
            SIAM J. Sci. Comput., vol. 33, pp. 2950-2971, 2011.
-           http://arxiv.org/abs/1006.0758
-    .. [2] LSMR Software, http://web.stanford.edu/group/SOL/software/lsmr/
+           https://arxiv.org/abs/1006.0758
+    .. [2] LSMR Software, https://web.stanford.edu/group/SOL/software/lsmr/
 
     Examples
     --------
@@ -313,15 +316,17 @@ def lsmr(A, b, damp=0.0, atol=1e-6, btol=1e-6, conlim=1e8,
         #         beta*u  =  a*v   -  alpha*u,
         #        alpha*v  =  A'*u  -  beta*v.
 
-        u = A.matvec(v) - alpha * u
+        u *= -alpha
+        u += A.matvec(v)
         beta = norm(u)
 
         if beta > 0:
-            u = (1 / beta) * u
-            v = A.rmatvec(u) - beta * v
+            u *= (1 / beta)
+            v *= -beta
+            v += A.rmatvec(u)
             alpha = norm(v)
             if alpha > 0:
-                v = (1 / alpha) * v
+                v *= (1 / alpha)
 
         # At this point, beta = beta_{k+1}, alpha = alpha_{k+1}.
 
@@ -348,9 +353,11 @@ def lsmr(A, b, damp=0.0, atol=1e-6, btol=1e-6, conlim=1e8,
 
         # Update h, h_hat, x.
 
-        hbar = h - (thetabar * rho / (rhoold * rhobarold)) * hbar
-        x = x + (zeta / (rho * rhobar)) * hbar
-        h = v - (thetanew / rho) * h
+        hbar *= - (thetabar * rho / (rhoold * rhobarold))
+        hbar += h
+        x += (zeta / (rho * rhobar)) * hbar
+        h *= - (thetanew / rho)
+        h += v
 
         # Estimate of ||r||.
 

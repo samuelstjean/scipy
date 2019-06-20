@@ -3,7 +3,7 @@
 Special functions (:mod:`scipy.special`)
 ========================================
 
-.. module:: scipy.special
+.. currentmodule:: scipy.special
 
 Nearly all of the functions below are universal functions and follow
 broadcasting and automatic array-looping rules. Exceptions are
@@ -199,7 +199,7 @@ Raw Statistical Functions
    bdtri        -- Inverse function to `bdtr` with respect to `p`.
    bdtrik       -- Inverse function to `bdtr` with respect to `k`.
    bdtrin       -- Inverse function to `bdtr` with respect to `n`.
-   btdtr        -- Cumulative density function of the beta distribution.
+   btdtr        -- Cumulative distribution function of the beta distribution.
    btdtri       -- The `p`-th quantile of the beta distribution.
    btdtria      -- Inverse of `btdtr` with respect to `a`.
    btdtrib      -- btdtria(a, p, x)
@@ -207,7 +207,7 @@ Raw Statistical Functions
    fdtrc        -- F survival function.
    fdtri        -- The `p`-th quantile of the F-distribution.
    fdtridfd     -- Inverse to `fdtr` vs dfd
-   gdtr         -- Gamma distribution cumulative density function.
+   gdtr         -- Gamma distribution cumulative distribution function.
    gdtrc        -- Gamma distribution survival function.
    gdtria       -- Inverse of `gdtr` vs a.
    gdtrib       -- Inverse of `gdtr` vs b.
@@ -232,7 +232,7 @@ Raw Statistical Functions
    pdtrc        -- Poisson survival function
    pdtri        -- Inverse to `pdtr` vs m
    pdtrik       -- Inverse to `pdtr` vs k
-   stdtr        -- Student t distribution cumulative density function
+   stdtr        -- Student t distribution cumulative distribution function
    stdtridf     -- Inverse of `stdtr` vs df
    stdtrit      -- Inverse of `stdtr` vs `t`
    chdtr        -- Chi square cumulative distribution function
@@ -249,7 +249,7 @@ Raw Statistical Functions
    smirnov      -- Kolmogorov-Smirnov complementary cumulative distribution function
    smirnovi     -- Inverse to `smirnov`
    kolmogorov   -- Complementary cumulative distribution function of Kolmogorov distribution
-   kolmogi      -- Inverse function to kolmogorov
+   kolmogi      -- Inverse function to `kolmogorov`
    tklmbda      -- Tukey-Lambda cumulative distribution function
    logit        -- Logit ufunc for ndarrays.
    expit        -- Expit ufunc for ndarrays.
@@ -257,6 +257,7 @@ Raw Statistical Functions
    boxcox1p     -- Compute the Box-Cox transformation of 1 + `x`.
    inv_boxcox   -- Compute the inverse of the Box-Cox transformation.
    inv_boxcox1p -- Compute the inverse of the Box-Cox transformation.
+   owens_t      -- Owen's T Function.
 
 
 Information Theory Functions
@@ -404,12 +405,12 @@ orthogonal polynomials:
    roots_sh_jacobi   -- Gauss-Jacobi (shifted) quadrature.
 
 The functions below, in turn, return the polynomial coefficients in
-:class:`~.orthopoly1d` objects, which function similarly as :ref:`numpy.poly1d`.
-The :class:`~.orthopoly1d` class also has an attribute ``weights`` which returns
+``orthopoly1d`` objects, which function similarly as `numpy.poly1d`.
+The ``orthopoly1d`` class also has an attribute ``weights`` which returns
 the roots, weights, and total weights for the appropriate form of Gaussian
 quadrature.  These are returned in an ``n x 3`` array with roots in the first
 column, weights in the second column, and total weights in the final column.
-Note that :class:`~.orthopoly1d` objects are converted to ``poly1d`` when doing
+Note that ``orthopoly1d`` objects are converted to `~numpy.poly1d` when doing
 arithmetic, and lose information of the original orthogonal polynomial.
 
 .. autosummary::
@@ -448,9 +449,6 @@ Hypergeometric Functions
    hyp1f1 -- Confluent hypergeometric function 1F1(a, b; x)
    hyperu -- Confluent hypergeometric function U(a, b, x) of the second kind
    hyp0f1 -- Confluent hypergeometric limit function 0F1.
-   hyp2f0 -- Hypergeometric function 2F0 in y and an error estimate
-   hyp1f2 -- Hypergeometric function 1F2 and error estimate
-   hyp3f0 -- Hypergeometric function 3F0 in y and an error estimate
 
 
 Parabolic Cylinder Functions
@@ -574,7 +572,7 @@ Lambert W and Related Functions
 -------------------------------
 
 .. autosummary::
-    :toctree: generated/
+   :toctree: generated/
 
    lambertw    -- Lambert W function.
    wrightomega -- Wright Omega function.
@@ -598,6 +596,7 @@ Other Special Functions
    factorialk -- [+]Multifactorial of n of order k, n(!!...!).
    shichi     -- Hyperbolic sine and cosine integrals.
    sici       -- Sine and cosine integrals.
+   softmax    -- Softmax function.
    spence     -- Spence's function, also known as the dilogarithm.
    zeta       -- Riemann zeta function.
    zetac      -- Riemann zeta function minus 1.
@@ -639,7 +638,7 @@ from .sf_error import SpecialFunctionWarning, SpecialFunctionError
 from ._ufuncs import *
 
 from .basic import *
-from ._logsumexp import logsumexp
+from ._logsumexp import logsumexp, softmax
 from . import specfun
 from . import orthogonal
 from .orthogonal import *

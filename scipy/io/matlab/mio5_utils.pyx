@@ -611,9 +611,7 @@ cdef class VarReader5:
             raise ValueError('Too many dimensions (%d) for numpy arrays'
                              % header.n_dims)
         # convert dims to list
-        header.dims = []
-        for i in range(header.n_dims):
-            header.dims.append(header.dims_ptr[i])
+        header.dims = [header.dims_ptr[i] for i in range(header.n_dims)]
         header.name = self.read_int8_string()
         return header
 
@@ -797,7 +795,7 @@ cdef class VarReader5:
         else:
             data = self.read_numeric()
         ''' From the matlab (TM) API documentation, last found here:
-        http://www.mathworks.com/access/helpdesk/help/techdoc/matlab_external/
+        https://www.mathworks.com/help/pdf_doc/matlab/apiext.pdf
         rowind are simply the row indices for all the (nnz) non-zero
         entries in the sparse array.  rowind has nzmax entries, so
         may well have more entries than nnz, the actual number of

@@ -36,6 +36,7 @@ def assert_unordered_tuple_list_equal(a, b, tpl=tuple):
     b.sort()
     assert_equal(a, b)
 
+
 np.random.seed(1234)
 
 points = [(0,0), (0,1), (1,0), (1,1), (0.5, 0.5), (0.5, 1.5)]
@@ -121,6 +122,7 @@ def _add_inc_data(name, chunksize):
     new_name = "%s-chunk-%d" % (name, chunksize)
     assert new_name not in INCREMENTAL_DATASETS
     INCREMENTAL_DATASETS[new_name] = (chunks, opts)
+
 
 for name in DATASETS:
     for chunksize in 1, 4, 16:
@@ -312,20 +314,20 @@ class TestUtilities(object):
         finally:
             np.seterr(**olderr)
 
-        assert_(ok.all(), "%s %s" % (err_msg, np.where(~ok)))
+        assert_(ok.all(), "%s %s" % (err_msg, np.nonzero(~ok)))
 
         # Invalid simplices must be (nearly) zero volume
         q = vertices[:,:-1,:] - vertices[:,-1,None,:]
         volume = np.array([np.linalg.det(q[k,:,:])
                            for k in range(tri.nsimplex)])
         ok = np.isfinite(tri.transform[:,0,0]) | (volume < np.sqrt(eps))
-        assert_(ok.all(), "%s %s" % (err_msg, np.where(~ok)))
+        assert_(ok.all(), "%s %s" % (err_msg, np.nonzero(~ok)))
 
         # Also, find_simplex for the centroid should end up in some
         # simplex for the non-degenerate cases
         j = tri.find_simplex(centroids)
         ok = (j != -1) | np.isnan(tri.transform[:,0,0])
-        assert_(ok.all(), "%s %s" % (err_msg, np.where(~ok)))
+        assert_(ok.all(), "%s %s" % (err_msg, np.nonzero(~ok)))
 
         if unit_cube:
             # If in unit cube, no interior point should be marked out of hull
@@ -333,7 +335,7 @@ class TestUtilities(object):
             at_boundary |= (centroids >= 1 - unit_cube_tol).any(axis=1)
 
             ok = (j != -1) | at_boundary
-            assert_(ok.all(), "%s %s" % (err_msg, np.where(~ok)))
+            assert_(ok.all(), "%s %s" % (err_msg, np.nonzero(~ok)))
 
     def test_degenerate_barycentric_transforms(self):
         # The triangulation should not produce invalid barycentric
@@ -425,9 +427,8 @@ class TestVertexNeighborVertices(object):
 
         indptr, indices = tri.vertex_neighbor_vertices
 
-        got = []
-        for j in range(tri.points.shape[0]):
-            got.append(set(map(int, indices[indptr[j]:indptr[j+1]])))
+        got = [set(map(int, indices[indptr[j]:indptr[j+1]]))
+               for j in range(tri.points.shape[0])]
 
         assert_equal(got, expected, err_msg="%r != %r" % (got, expected))
 
@@ -700,6 +701,124 @@ class TestConvexHull:
         assert_allclose(tri.volume, 1., rtol=1e-14)
         assert_allclose(tri.area, 6., rtol=1e-14)
 
+    @pytest.mark.parametrize("incremental", [False, True])
+    def test_good2d(self, incremental):
+        # Make sure the QGn option gives the correct value of "good".
+        points = np.array([[0.2, 0.2],
+                           [0.2, 0.4],
+                           [0.4, 0.4],
+                           [0.4, 0.2],
+                           [0.3, 0.6]])
+        hull = qhull.ConvexHull(points=points,
+                                incremental=incremental,
+                                qhull_options='QG4')
+        expected = np.array([False, True, False, False], dtype=bool)
+        actual = hull.good
+        assert_equal(actual, expected)
+
+    @pytest.mark.parametrize("visibility", [
+                              "QG4",  # visible=True
+                              "QG-4",  # visible=False
+                              ])
+    @pytest.mark.parametrize("new_gen, expected", [
+        # add generator that places QG4 inside hull
+        # so all facets are invisible
+        (np.array([[0.3, 0.7]]),
+         np.array([False, False, False, False, False], dtype=bool)),
+        # adding a generator on the opposite side of the square
+        # should preserve the single visible facet & add one invisible
+        # facet
+        (np.array([[0.3, -0.7]]),
+         np.array([False, True, False, False, False], dtype=bool)),
+        # split the visible facet on top of the square into two
+        # visible facets, with visibility at the end of the array
+        # because add_points concatenates
+        (np.array([[0.3, 0.41]]),
+         np.array([False, False, False, True, True], dtype=bool)),
+        # with our current Qhull options, coplanarity will not count
+        # for visibility; this case shifts one visible & one invisible
+        # facet & adds a coplanar facet
+        # simplex at index position 2 is the shifted visible facet
+        # the final simplex is the coplanar facet
+        (np.array([[0.5, 0.6], [0.6, 0.6]]),
+         np.array([False, False, True, False, False], dtype=bool)),
+        # place the new generator such that it envelops the query
+        # point within the convex hull, but only just barely within
+        # the double precision limit
+        # NOTE: testing exact degeneracy is less predictable than this
+        # scenario, perhaps because of the default Qt option we have
+        # enabled for Qhull to handle precision matters
+        (np.array([[0.3, 0.6 + 1e-16]]),
+         np.array([False, False, False, False, False], dtype=bool)),
+        ])
+    def test_good2d_incremental_changes(self, new_gen, expected,
+                                        visibility):
+        # use the usual square convex hull
+        # generators from test_good2d
+        points = np.array([[0.2, 0.2],
+                           [0.2, 0.4],
+                           [0.4, 0.4],
+                           [0.4, 0.2],
+                           [0.3, 0.6]])
+        hull = qhull.ConvexHull(points=points,
+                                incremental=True,
+                                qhull_options=visibility)
+        hull.add_points(new_gen)
+        actual = hull.good
+        if '-' in visibility:
+            expected = np.invert(expected)
+        assert_equal(actual, expected)
+
+    @pytest.mark.parametrize("incremental", [False, True])
+    def test_good2d_no_option(self, incremental):
+        # handle case where good attribue doesn't exist
+        # because Qgn or Qg-n wasn't specified
+        points = np.array([[0.2, 0.2],
+                           [0.2, 0.4],
+                           [0.4, 0.4],
+                           [0.4, 0.2],
+                           [0.3, 0.6]])
+        hull = qhull.ConvexHull(points=points,
+                                incremental=incremental)
+        actual = hull.good
+        assert actual is None
+        # preserve None after incremental addition
+        if incremental:
+            hull.add_points(np.zeros((1, 2)))
+            actual = hull.good
+            assert actual is None
+
+    @pytest.mark.parametrize("incremental", [False, True])
+    def test_good2d_inside(self, incremental):
+        # Make sure the QGn option gives the correct value of "good".
+        # When point n is inside the convex hull of the rest, good is
+        # all False.
+        points = np.array([[0.2, 0.2],
+                           [0.2, 0.4],
+                           [0.4, 0.4],
+                           [0.4, 0.2],
+                           [0.3, 0.3]])
+        hull = qhull.ConvexHull(points=points,
+                                incremental=incremental,
+                                qhull_options='QG4')
+        expected = np.array([False, False, False, False], dtype=bool)
+        actual = hull.good
+        assert_equal(actual, expected)
+
+    @pytest.mark.parametrize("incremental", [False, True])
+    def test_good3d(self, incremental):
+        # Make sure the QGn option gives the correct value of "good"
+        # for a 3d figure
+        points = np.array([[0.0, 0.0, 0.0],
+                           [0.90029516, -0.39187448, 0.18948093],
+                           [0.48676420, -0.72627633, 0.48536925],
+                           [0.57651530, -0.81179274, -0.09285832],
+                           [0.67846893, -0.71119562, 0.18406710]])
+        hull = qhull.ConvexHull(points=points,
+                                incremental=incremental,
+                                qhull_options='QG0')
+        expected = np.array([True, False, False, False], dtype=bool)
+        assert_equal(hull.good, expected)
 
 class TestVoronoi:
     def test_masked_array_fails(self):
@@ -903,7 +1022,7 @@ class Test_HalfspaceIntersection(object):
 
         truths = np.zeros((arr1.shape[0],), dtype=bool)
         for l1 in arr1:
-            indexes = np.where((abs(arr2 - l1) < rtol).all(axis=1))[0]
+            indexes = np.nonzero((abs(arr2 - l1) < rtol).all(axis=1))[0]
             assert_equal(indexes.shape, (1,))
             truths[indexes[0]] = True
         assert_(truths.all())

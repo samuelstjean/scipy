@@ -33,9 +33,10 @@ from __future__ import division, print_function, absolute_import
 # otherwise the key would be inserted into userspace attributes.
 
 
-__all__ = ['netcdf_file']
+__all__ = ['netcdf_file', 'netcdf_variable']
 
 
+import sys
 import warnings
 import weakref
 from operator import mul
@@ -50,6 +51,8 @@ from numpy import little_endian as LITTLE_ENDIAN
 from functools import reduce
 
 from scipy._lib.six import integer_types, text_type, binary_type
+
+IS_PYPY = ('__pypy__' in sys.modules)
 
 ABSENT = b'\x00\x00\x00\x00\x00\x00\x00\x00'
 ZERO = b'\x00\x00\x00\x00'
@@ -189,9 +192,9 @@ class netcdf_file(object):
     >>> time.units = 'days since 2008-01-01'
     >>> f.close()
 
-    Note the assignment of ``range(10)`` to ``time[:]``.  Exposing the slice
+    Note the assignment of ``arange(10)`` to ``time[:]``.  Exposing the slice
     of the time variable allows for the data to be set in the object, rather
-    than letting ``range(10)`` overwrite the ``time`` variable.
+    than letting ``arange(10)`` overwrite the ``time`` variable.
 
     To read the NetCDF file we just created:
 
@@ -248,7 +251,10 @@ class netcdf_file(object):
             omode = 'r+' if mode == 'a' else mode
             self.fp = open(self.filename, '%sb' % omode)
             if mmap is None:
-                mmap = True
+                # Mmapped files on PyPy cannot be usually closed
+                # before the GC runs, so it's better to use mmap=False
+                # as the default.
+                mmap = (not IS_PYPY)
 
         if mode != 'r':
             # Cannot read write-only files
@@ -695,7 +701,8 @@ class netcdf_file(object):
                 else:
                     pos = self.fp.tell()
                     self.fp.seek(begin_)
-                    data = frombuffer(self.fp.read(a_size), dtype=dtype_)
+                    data = frombuffer(self.fp.read(a_size), dtype=dtype_
+                                      ).copy()
                     data.shape = shape
                     self.fp.seek(pos)
 
@@ -717,7 +724,8 @@ class netcdf_file(object):
             else:
                 pos = self.fp.tell()
                 self.fp.seek(begin)
-                rec_array = frombuffer(self.fp.read(self._recs*self._recsize), dtype=dtypes)
+                rec_array = frombuffer(self.fp.read(self._recs*self._recsize),
+                                       dtype=dtypes).copy()
                 rec_array.shape = (self._recs,)
                 self.fp.seek(pos)
 
@@ -760,7 +768,7 @@ class netcdf_file(object):
         self.fp.read(-count % 4)  # read padding
 
         if typecode is not 'c':
-            values = frombuffer(values, dtype='>%s' % typecode)
+            values = frombuffer(values, dtype='>%s' % typecode).copy()
             if values.shape == (1,):
                 values = values[0]
         else:
@@ -802,7 +810,7 @@ class netcdf_file(object):
 
 class netcdf_variable(object):
     """
-    A data object for the `netcdf` module.
+    A data object for netcdf files.
 
     `netcdf_variable` objects are constructed by calling the method
     `netcdf_file.createVariable` on the `netcdf_file` object. `netcdf_variable`

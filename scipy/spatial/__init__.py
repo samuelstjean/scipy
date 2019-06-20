@@ -5,6 +5,11 @@ Spatial algorithms and data structures (:mod:`scipy.spatial`)
 
 .. currentmodule:: scipy.spatial
 
+Spatial Transformations
+=======================
+
+These are contained in the `scipy.spatial.transform` submodule.
+
 Nearest-neighbor Queries
 ========================
 .. autosummary::
@@ -12,8 +17,9 @@ Nearest-neighbor Queries
 
    KDTree      -- class for efficient nearest-neighbor queries
    cKDTree     -- class for efficient nearest-neighbor queries (faster impl.)
-   distance    -- module containing many different distance measures
    Rectangle
+
+Distance metrics are contained in the :mod:`scipy.spatial.distance` submodule.
 
 Delaunay Triangulation, Convex Hulls and Voronoi Diagrams
 =========================================================
@@ -57,10 +63,8 @@ tessellation (N-dim simplices), convex hull facets, and Voronoi ridges
 
 For Delaunay triangulations and convex hulls, the neighborhood
 structure of the simplices satisfies the condition:
-
-    ``tess.neighbors[i,j]`` is the neighboring simplex of the i-th
-    simplex, opposite to the j-vertex. It is -1 in case of no
-    neighbor.
+``tess.neighbors[i,j]`` is the neighboring simplex of the ``i``-th
+simplex, opposite to the ``j``-vertex. It is -1 in case of no neighbor.
 
 Convex hull facets also define a hyperplane equation::
 
@@ -98,9 +102,9 @@ from ._plotutils import *
 from ._procrustes import procrustes
 
 __all__ = [s for s in dir() if not s.startswith('_')]
-__all__ += ['distance']
+__all__ += ['distance', 'transform']
 
-from . import distance
+from . import distance, transform
 
 from scipy._lib._testutils import PytestTester
 test = PytestTester(__name__)

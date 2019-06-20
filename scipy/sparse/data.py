@@ -11,7 +11,7 @@ from __future__ import division, print_function, absolute_import
 import numpy as np
 
 from .base import spmatrix, _ufuncs_with_fixed_point_at_zero
-from .sputils import isscalarlike, validateaxis
+from .sputils import isscalarlike, validateaxis, matrix
 
 __all__ = []
 
@@ -77,8 +77,13 @@ class _data_matrix(spmatrix):
 
     astype.__doc__ = spmatrix.astype.__doc__
 
-    def conj(self):
-        return self._with_data(self.data.conj())
+    def conj(self, copy=True):
+        if np.issubdtype(self.dtype, np.complexfloating):
+            return self._with_data(self.data.conj(), copy=copy)
+        elif copy:
+            return self.copy()
+        else:
+            return self
 
     conj.__doc__ = spmatrix.conj.__doc__
 
@@ -124,9 +129,8 @@ for npfunc in _ufuncs_with_fixed_point_at_zero:
 
     def _create_method(op):
         def method(self):
-            result = op(self.data)
-            x = self._with_data(result, copy=True)
-            return x
+            result = op(self._deduped_data())
+            return self._with_data(result, copy=True)
 
         method.__doc__ = ("Element-wise %s.\n\n"
                           "See numpy.%s for more information." % (name, name))
@@ -195,7 +199,7 @@ class _minmax_mixin(object):
             if self.nnz == 0:
                 return zero
             m = min_or_max.reduce(self._deduped_data().ravel())
-            if self.nnz != np.product(self.shape):
+            if self.nnz != np.prod(self.shape):
                 m = min_or_max(zero, m)
             return m
 
@@ -242,7 +246,7 @@ class _minmax_mixin(object):
         if axis == 1:
             ret = ret.reshape(-1, 1)
 
-        return np.asmatrix(ret)
+        return matrix(ret)
 
     def _arg_min_or_max(self, axis, out, op, compare):
         if out is not None:
@@ -268,7 +272,7 @@ class _minmax_mixin(object):
                 if compare(m, zero):
                     return mat.row[am] * mat.shape[1] + mat.col[am]
                 else:
-                    size = np.product(mat.shape)
+                    size = np.prod(mat.shape)
                     if size == mat.nnz:
                         return am
                     else:
@@ -308,7 +312,7 @@ class _minmax_mixin(object):
         See Also
         --------
         min : The minimum value of a sparse matrix along a given axis.
-        np.matrix.max : NumPy's implementation of 'max' for matrices
+        numpy.matrix.max : NumPy's implementation of 'max' for matrices
 
         """
         return self._min_or_max(axis, out, np.maximum)
@@ -340,7 +344,7 @@ class _minmax_mixin(object):
         See Also
         --------
         max : The maximum value of a sparse matrix along a given axis.
-        np.matrix.min : NumPy's implementation of 'min' for matrices
+        numpy.matrix.min : NumPy's implementation of 'min' for matrices
 
         """
         return self._min_or_max(axis, out, np.minimum)
@@ -363,7 +367,7 @@ class _minmax_mixin(object):
 
         Returns
         -------
-        ind : np.matrix or int
+        ind : numpy.matrix or int
             Indices of maximum elements. If matrix, its size along `axis` is 1.
         """
         return self._arg_min_or_max(axis, out, np.argmax, np.greater)
@@ -386,7 +390,7 @@ class _minmax_mixin(object):
 
         Returns
         -------
-         ind : np.matrix or int
+         ind : numpy.matrix or int
             Indices of minimum elements. If matrix, its size along `axis` is 1.
         """
         return self._arg_min_or_max(axis, out, np.argmin, np.less)
