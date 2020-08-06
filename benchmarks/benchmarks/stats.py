@@ -1,5 +1,3 @@
-from __future__ import division, absolute_import, print_function
-
 import warnings
 
 import numpy as np
@@ -152,3 +150,27 @@ class GroupSampling(Benchmark):
 
     def time_special_ortho_group(self, dim):
         stats.special_ortho_group.rvs(dim)
+
+
+class BinnedStatisticDD(Benchmark):
+
+    params = ["count", "sum", "mean", "min", "max", "median", "std", np.std]
+
+    def setup(self, statistic):
+        np.random.seed(12345678)
+        self.inp = np.random.rand(9999).reshape(3, 3333) * 200
+        self.subbin_x_edges = np.arange(0, 200, dtype=np.float32)
+        self.subbin_y_edges = np.arange(0, 200, dtype=np.float64)
+        self.ret = stats.binned_statistic_dd(
+            [self.inp[0], self.inp[1]], self.inp[2], statistic=statistic,
+            bins=[self.subbin_x_edges, self.subbin_y_edges])
+
+    def time_binned_statistic_dd(self, statistic):
+        stats.binned_statistic_dd(
+            [self.inp[0], self.inp[1]], self.inp[2], statistic=statistic,
+            bins=[self.subbin_x_edges, self.subbin_y_edges])
+
+    def time_binned_statistic_dd_reuse_bin(self, statistic):
+        stats.binned_statistic_dd(
+            [self.inp[0], self.inp[1]], self.inp[2], statistic=statistic,
+            binned_statistic_result=self.ret)
