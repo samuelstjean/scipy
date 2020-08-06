@@ -1482,7 +1482,7 @@ def yeojohnson_llf(lmb, data):
 def yeojohnson_normmax(x, brack=(-2, 2)):
     """
     Compute optimal Yeo-Johnson transform parameter.
-    
+
     Compute optimal Yeo-Johnson transform parameter for input data, using
     maximum likelihood estimation.
 
@@ -2829,11 +2829,11 @@ def wilcoxon(x, y=None, zero_method="wilcox", correction=False,
         two sets of measurements.)  Must be one-dimensional.
     zero_method : {'pratt', 'wilcox', 'zsplit'}, optional
         The following options are available (default is 'wilcox'):
-     
+
           * 'pratt': Includes zero-differences in the ranking process,
             but drops the ranks of the zeros, see [4]_, (more conservative).
           * 'wilcox': Discards all zero-differences, the default.
-          * 'zsplit': Includes zero-differences in the ranking process and 
+          * 'zsplit': Includes zero-differences in the ranking process and
             split the zero rank between positive and negative ones.
     correction : bool, optional
         If True, apply continuity correction by adjusting the Wilcoxon rank
@@ -2866,8 +2866,8 @@ def wilcoxon(x, y=None, zero_method="wilcox", correction=False,
     is that the differences are symmetric, see [2]_.
     The two-sided test has the null hypothesis that the median of the
     differences is zero against the alternative that it is different from
-    zero. The one-sided test has the null hypothesis that the median is 
-    positive against the alternative that it is negative 
+    zero. The one-sided test has the null hypothesis that the median is
+    positive against the alternative that it is negative
     (``alternative == 'less'``), or vice versa (``alternative == 'greater.'``).
 
     To derive the p-value, the exact distribution (``mode == 'exact'``)
