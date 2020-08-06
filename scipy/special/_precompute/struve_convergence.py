@@ -31,12 +31,10 @@ Black dashed line
     The line z = 0.7*|v| + 12
 
 """
-from __future__ import absolute_import, division, print_function
-
 import numpy as np
-import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt  # type: ignore[import]
 
-import mpmath
+import mpmath  # type: ignore[import]
 
 
 def err_metric(a, b, atol=1e-290):
@@ -116,6 +114,7 @@ def main():
 
     plt.savefig('struve_convergence.png')
     plt.show()
+
 
 if __name__ == "__main__":
     main()

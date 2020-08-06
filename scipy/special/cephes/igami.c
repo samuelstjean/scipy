@@ -2,19 +2,17 @@
  * (C) Copyright John Maddock 2006.
  * Use, modification and distribution are subject to the
  * Boost Software License, Version 1.0. (See accompanying file
- *  LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+ *  LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
  */
 #include "mconf.h"
 #include "_c99compat.h"
 
-double find_inverse_s(double, double);
-double didonato_SN(double, double, unsigned, double);
-double find_inverse_gamma(double, double, double);
-double igami(double, double);
-double igamci(double, double);
+static double find_inverse_s(double, double);
+static double didonato_SN(double, double, unsigned, double);
+static double find_inverse_gamma(double, double, double);
 
 
-double find_inverse_s(double p, double q)
+static double find_inverse_s(double p, double q)
 {
     /*
      * Computation of the Incomplete Gamma Function Ratios and their Inverse
@@ -43,7 +41,7 @@ double find_inverse_s(double p, double q)
 }
 
 
-double didonato_SN(double a, double x, unsigned N, double tolerance)
+static double didonato_SN(double a, double x, unsigned N, double tolerance)
 {
     /*
      * Computation of the Incomplete Gamma Function Ratios and their Inverse
@@ -72,7 +70,7 @@ double didonato_SN(double a, double x, unsigned N, double tolerance)
 }
 
 
-double find_inverse_gamma(double a, double p, double q)
+static double find_inverse_gamma(double a, double p, double q)
 {
     /*
      * In order to understand what's going on here, you will
@@ -266,7 +264,7 @@ double igami(double a, double p)
 	return NPY_NAN;
     }
     else if ((a < 0) || (p < 0) || (p > 1)) {
-	mtherr("gammaincinv", DOMAIN);
+	sf_error("gammaincinv", SF_ERROR_DOMAIN, NULL);
     }
     else if (p == 0.0) {
 	return 0.0;
@@ -310,7 +308,7 @@ double igamci(double a, double q)
 	return NPY_NAN;
     }
     else if ((a < 0.0) || (q < 0.0) || (q > 1.0)) {
-	mtherr("gammainccinv", DOMAIN);
+	sf_error("gammainccinv", SF_ERROR_DOMAIN, NULL);
     }
     else if (q == 0.0) {
 	return NPY_INFINITY;
