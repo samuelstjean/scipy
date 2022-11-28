@@ -4,9 +4,6 @@ local power basis.
 
 """
 
-from __future__ import absolute_import
-
-from scipy.interpolate.polyint import _Interpolator1D
 import numpy as np
 
 cimport cython
@@ -14,20 +11,9 @@ cimport cython
 cimport libc.stdlib
 cimport libc.math
 
-ctypedef double complex double_complex
+from scipy.linalg.cython_lapack cimport dgeev
 
-ctypedef fused double_or_complex:
-    double
-    double complex
-
-cdef extern from "blas_defs.h":
-    void c_dgeev(char *jobvl, char *jobvr, int *n, double *a,
-                 int *lda, double *wr, double *wi, double *vl, int *ldvl,
-                 double *vr, int *ldvr, double *work, int *lwork,
-                 int *info)
-
-cdef extern from "numpy/npy_math.h":
-    double nan "NPY_NAN"
+include "_poly_common.pxi"
 
 DEF MAX_DIMS = 64
 
@@ -39,8 +25,8 @@ DEF MAX_DIMS = 64
 @cython.boundscheck(False)
 @cython.cdivision(True)
 def evaluate(double_or_complex[:,:,::1] c,
-             double[::1] x,
-             double[::1] xp,
+             const double[::1] x,
+             const double[::1] xp,
              int dx,
              bint extrapolate,
              double_or_complex[:,::1] out):
@@ -101,7 +87,7 @@ def evaluate(double_or_complex[:,:,::1] c,
         if i < 0:
             # xval was nan etc
             for jp in range(c.shape[2]):
-                out[ip, jp] = nan
+                out[ip, jp] = libc.math.NAN
             continue
         else:
             interval = i
@@ -180,7 +166,7 @@ def evaluate_nd(double_or_complex[:,:,::1] c,
 
     # compute interval strides
     ntot = 1
-    for ip in xrange(ndim-1, -1, -1):
+    for ip in range(ndim-1, -1, -1):
         if dx[ip] < 0:
             raise ValueError("Order of derivative cannot be negative")
 
@@ -201,7 +187,7 @@ def evaluate_nd(double_or_complex[:,:,::1] c,
 
     # compute order strides
     ntot = 1
-    for ip in xrange(ndim):
+    for ip in range(ndim):
         kstrides[ip] = ntot
         ntot *= ks[ip]
 
@@ -215,7 +201,7 @@ def evaluate_nd(double_or_complex[:,:,::1] c,
         c2 = np.zeros((c.shape[0], 1, 1), dtype=complex)
 
     # evaluate
-    for ip in xrange(ndim):
+    for ip in range(ndim):
         interval[ip] = 0
 
     for ip in range(xp.shape[0]):
@@ -239,7 +225,7 @@ def evaluate_nd(double_or_complex[:,:,::1] c,
         if out_of_range:
             # xval was nan etc
             for jp in range(c.shape[2]):
-                out[ip, jp] = nan
+                out[ip, jp] = libc.math.NAN
             continue
 
         pos = 0
@@ -332,7 +318,7 @@ def fix_continuity(double_or_complex[:,:,::1] c,
 @cython.boundscheck(False)
 @cython.cdivision(True)
 def integrate(double_or_complex[:,:,::1] c,
-              double[::1] x,
+              const double[::1] x,
               double a,
               double b,
               bint extrapolate,
@@ -389,7 +375,7 @@ def integrate(double_or_complex[:,:,::1] c,
 
 
     if start_interval < 0 or end_interval < 0:
-        out[:] = nan
+        out[:] = libc.math.NAN
         return
 
     # evaluate
@@ -465,9 +451,14 @@ def real_roots(double[:,:,::1] c, double[::1] x, double y, bint report_discont,
 
     wr = <double*>libc.stdlib.malloc(c.shape[0] * sizeof(double))
     wi = <double*>libc.stdlib.malloc(c.shape[0] * sizeof(double))
+    if not wr or not wi:
+        libc.stdlib.free(wr)
+        libc.stdlib.free(wi)
+        raise MemoryError("Failed to allocate memory in real_roots")
+
     workspace = NULL
 
-    last_root = nan
+    last_root = libc.math.NAN
 
     cdef bint ascending = x[x.shape[0] - 1] >= x[0]
 
@@ -502,7 +493,7 @@ def real_roots(double[:,:,::1] c, double[::1] x, double y, bint report_discont,
                         # A real interval
                         cur_roots.append(x[interval])
                         cur_roots.append(np.nan)
-                        last_root = nan
+                        last_root = libc.math.NAN
                     continue
                 elif k < -1:
                     # An error occurred
@@ -533,8 +524,11 @@ def real_roots(double[:,:,::1] c, double[::1] x, double y, bint report_discont,
                     wr[i] += x[interval]
                     if interval == 0 and extrapolate:
                         # Half-open to the left/right.
-                        if (ascending and not wr[i] <= x[interval+1] or
-                            not ascending and not wr[i] >= x[interval + 1]):
+                        # Might also be the only interval, in which case there is
+                        # no limitation.
+                        if (interval != c.shape[1] - 1 and
+                            (ascending and not wr[i] <= x[interval+1] or
+                             not ascending and not wr[i] >= x[interval + 1])):
                                 continue
                     elif interval == c.shape[1] - 1 and extrapolate:
                         # Half-open to the right/left.
@@ -556,8 +550,7 @@ def real_roots(double[:,:,::1] c, double[::1] x, double y, bint report_discont,
             # Construct roots
             roots.append(np.array(cur_roots, dtype=float))
     finally:
-        if workspace != NULL:
-            libc.stdlib.free(workspace)
+        libc.stdlib.free(workspace)
         libc.stdlib.free(wr)
         libc.stdlib.free(wi)
 
@@ -567,92 +560,7 @@ def real_roots(double[:,:,::1] c, double[::1] x, double y, bint report_discont,
 @cython.wraparound(False)
 @cython.boundscheck(False)
 @cython.cdivision(True)
-cdef int find_interval_ascending(double *x,
-                                 size_t nx,
-                                 double xval,
-                                 int prev_interval=0,
-                                 bint extrapolate=1) nogil:
-    """
-    Find an interval such that x[interval] <= xval < x[interval+1]. Assuming
-    that x is sorted in the ascending order.
-    If xval < x[0], then interval = 0, if xval > x[-1] then interval = n - 2.
-
-    Parameters
-    ----------
-    x : array of double, shape (m,)
-        Piecewise polynomial breakpoints sorted in ascending order.
-    xval : double
-        Point to find.
-    prev_interval : int, optional
-        Interval where a previous point was found.
-    extrapolate : bint, optional
-        Whether to return the last of the first interval if the
-        point is out-of-bounds.
-
-    Returns
-    -------
-    interval : int
-        Suitable interval or -1 if nan.
-
-    """
-    cdef int interval, high, low, mid
-    cdef double a, b
-
-    a = x[0]
-    b = x[nx-1]
-
-    interval = prev_interval
-    if interval < 0 or interval >= nx:
-        interval = 0
-
-    if not (a <= xval <= b):
-        # Out-of-bounds (or nan)
-        if xval < a and extrapolate:
-            # below
-            interval = 0
-        elif xval > b and extrapolate:
-            # above
-            interval = nx - 2
-        else:
-            # nan or no extrapolation
-            interval = -1
-    elif xval == b:
-        # Make the interval closed from the right
-        interval = nx - 2
-    else:
-        # Find the interval the coordinate is in
-        # (binary search with locality)
-        if xval >= x[interval]:
-            low = interval
-            high = nx - 2
-        else:
-            low = 0
-            high = interval
-
-        if xval < x[low+1]:
-            high = low
-
-        while low < high:
-            mid = (high + low)//2
-            if xval < x[mid]:
-                # mid < high
-                high = mid
-            elif xval >= x[mid + 1]:
-                low = mid + 1
-            else:
-                # x[mid] <= xval < x[mid+1]
-                low = mid
-                break
-
-        interval = low
-
-    return interval
-
-
-@cython.wraparound(False)
-@cython.boundscheck(False)
-@cython.cdivision(True)
-cdef int find_interval_descending(double *x,
+cdef int find_interval_descending(const double *x,
                                  size_t nx,
                                  double xval,
                                  int prev_interval=0,
@@ -800,7 +708,7 @@ cdef double_or_complex evaluate_poly1(double s, double_or_complex[:,:,::1] c, in
 @cython.boundscheck(False)
 @cython.cdivision(True)
 cdef int croots_poly1(double[:,:,::1] c, double y, int ci, int cj,
-                      double* wr, double* wi, void **workspace):
+                      double* wr, double* wi, void **workspace) except -10:
     """
     Find all complex roots of a local polynomial.
 
@@ -913,6 +821,8 @@ cdef int croots_poly1(double[:,:,::1] c, double y, int ci, int cj,
     if workspace[0] == NULL:
         nworkspace = n*n + lwork
         workspace[0] = libc.stdlib.malloc(nworkspace * sizeof(double))
+        if workspace[0] == NULL:
+            raise MemoryError("Failed to allocate memory in croots_poly1")
 
     a = <double*>workspace[0]
     work = a + n*n
@@ -930,8 +840,8 @@ cdef int croots_poly1(double[:,:,::1] c, double y, int ci, int cj,
 
     # Compute companion matrix eigenvalues
     info = 0
-    c_dgeev("N", "N", &order, a, &order, <double*>wr, <double*>wi,
-            NULL, &order, NULL, &order, work, &lwork, &info)
+    dgeev("N", "N", &order, a, &order, <double*>wr, <double*>wi,
+          NULL, &order, NULL, &order, work, &lwork, &info)
     if info != 0:
         # Failure
         return -2
@@ -984,13 +894,18 @@ def _croots_poly1(double[:,:,::1] c, double_complex[:,:,::1] w, double y=0):
 
     wr = <double*>libc.stdlib.malloc(c.shape[0] * sizeof(double))
     wi = <double*>libc.stdlib.malloc(c.shape[0] * sizeof(double))
+    if not wr or not wi:
+        libc.stdlib.free(wr)
+        libc.stdlib.free(wi)
+        raise MemoryError("Failed to allocate memory in _croots_poly1")
+
     workspace = NULL
 
     try:
         for i in range(c.shape[1]):
             for j in range(c.shape[2]):
                 for k in range(c.shape[0]):
-                    w[k,i,j] = nan
+                    w[k,i,j] = libc.math.NAN
 
                 nroots = croots_poly1(c, y, i, j, wr, wi, &workspace)
 
@@ -1003,8 +918,7 @@ def _croots_poly1(double[:,:,::1] c, double_complex[:,:,::1] w, double y=0):
                     w[k,i,j].real = wr[k]
                     w[k,i,j].imag = wi[k]
     finally:
-        if workspace != NULL:
-            libc.stdlib.free(workspace)
+        libc.stdlib.free(workspace)
         libc.stdlib.free(wr)
         libc.stdlib.free(wi)
 
@@ -1047,7 +961,7 @@ cdef double_or_complex evaluate_bpoly1(double_or_complex s,
     # special-case lowest orders
     if k == 0:
         res = c[0, ci, cj]
-    elif k == 1: 
+    elif k == 1:
         res = c[0, ci, cj] * s1 + c[1, ci, cj] * s
     elif k == 2:
         res = c[0, ci, cj] * s1*s1 + c[1, ci, cj] * 2.*s1*s + c[2, ci, cj] * s*s
@@ -1073,7 +987,7 @@ cdef double_or_complex evaluate_bpoly1_deriv(double_or_complex s,
                                              int nu,
                                              double_or_complex[:,:,::1] wrk) nogil:
     """
-    Evaluate the derivative of a polynomial in the Bernstein basis 
+    Evaluate the derivative of a polynomial in the Bernstein basis
     in a single interval.
 
     A Bernstein polynomial is defined as
@@ -1182,7 +1096,7 @@ def evaluate_bernstein(double_or_complex[:,:,::1] c,
             wrk = np.empty((c.shape[0]-nu, 1, 1), dtype=np.complex_)
         else:
             wrk = np.empty((c.shape[0]-nu, 1, 1), dtype=np.float_)
-        
+
 
     interval = 0
     cdef bint ascending = x[x.shape[0] - 1] >= x[0]
@@ -1202,7 +1116,7 @@ def evaluate_bernstein(double_or_complex[:,:,::1] c,
         if i < 0:
             # xval was nan etc
             for jp in range(c.shape[2]):
-                out[ip, jp] = nan
+                out[ip, jp] = libc.math.NAN
             continue
         else:
             interval = i

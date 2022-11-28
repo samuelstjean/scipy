@@ -12,14 +12,9 @@
  *
  * DESCRIPTION:
  *
- * This file contains definitions for error codes that are
- * passed to the common error handling routine mtherr()
- * (which see).
+ * The file includes a conditional assembly definition for the type of
+ * computer arithmetic (IEEE, Motorola IEEE, or UNKnown).
  *
- * The file also includes a conditional assembly definition
- * for the type of computer arithmetic (IEEE, Motorola
- * IEEE, or UNKnown).
- * 
  * For little-endian computers, such as IBM PC, that follow the
  * IEEE Standard for Binary Floating Point Arithmetic (ANSI/IEEE
  * Std 754-1985), the symbol IBMPC should be defined.  These
@@ -59,35 +54,16 @@
 #define CEPHES_MCONF_H
 
 #include <Python.h>
-#include <numpy/npy_math.h>
+#include <math.h>
 
 #include "cephes_names.h"
-#include "protos.h"
+#include "cephes.h"
 #include "polevl.h"
+#include "sf_error.h"
 
-/* Constant definitions for math error conditions
- */
-
-#define DOMAIN		1	/* argument domain error */
-#define SING		2	/* argument singularity */
-#define OVERFLOW	3	/* overflow range error */
-#define UNDERFLOW	4	/* underflow range error */
-#define TLOSS		5	/* total loss of precision */
-#define PLOSS		6	/* partial loss of precision */
-#define TOOMANY         7	/* too many iterations */
 #define MAXITER        500
-
 #define EDOM		33
 #define ERANGE		34
-
-/* Long double complex numeral.  */
-/*
- * typedef struct
- * {
- * long double r;
- * long double i;
- * } cmplxl;
- */
 
 /* Type of computer arithmetic */
 
@@ -121,9 +97,13 @@
 #endif
 #endif
 #ifndef cephes_isnan
-#define cephes_isnan(x) npy_isnan(x)
-#define cephes_isinf(x) npy_isinf(x)
-#define cephes_isfinite(x) npy_isfinite(x)
+#define cephes_isnan(x) isnan(x)
+#define cephes_isinf(x) isinf(x)
+#define cephes_isfinite(x) isfinite(x)
 #endif
+
+/* Constants needed that are not available in the C standard library */
+#define SCIPY_EULER     0.577215664901532860606512090082402431   /* Euler constant */
+#define SCIPY_El        2.718281828459045235360287471352662498L  /* e as long double */
 
 #endif				/* CEPHES_MCONF_H */

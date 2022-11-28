@@ -29,7 +29,7 @@
  *                      Relative error:
  * arithmetic   domain      # trials      peak         rms
  *    IEEE      +-1000       30000      2.3e-16      5.6e-17
- * 
+ *
  * ERROR MESSAGES:
  *
  *   message           condition        value returned
@@ -112,11 +112,11 @@ double x;
     }
 
     if (x > lossth) {
-	mtherr("sindg", TLOSS);
+	sf_error("sindg", SF_ERROR_NO_RESULT, NULL);
 	return (0.0);
     }
 
-    y = floor(x / 45.0);	/* integer part of x/NPY_PI_4 */
+    y = floor(x / 45.0);	/* integer part of x/M_PI_4 */
 
     /* strip high bits of integer part to prevent integer overflow */
     z = ldexp(y, -4);
@@ -166,7 +166,7 @@ double x;
 	x = -x;
 
     if (x > lossth) {
-	mtherr("cosdg", TLOSS);
+	sf_error("cosdg", SF_ERROR_NO_RESULT, NULL);
 	return (0.0);
     }
 

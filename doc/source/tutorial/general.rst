@@ -4,13 +4,15 @@ Introduction
 
 .. contents::
 
+.. currentmodule:: scipy
+
 SciPy is a collection of mathematical algorithms and convenience
-functions built on the Numpy extension of Python. It adds
+functions built on the NumPy extension of Python. It adds
 significant power to the interactive Python session by providing the
 user with high-level commands and classes for manipulating and
-visualizing data. With SciPy an interactive Python session
+visualizing data. With SciPy, an interactive Python session
 becomes a data-processing and system-prototyping environment rivaling
-systems such as MATLAB, IDL, Octave, R-Lab, and SciLab.
+systems, such as MATLAB, IDL, Octave, R-Lab, and SciLab.
 
 The additional benefit of basing SciPy on Python is that this also makes a
 powerful programming language available for use in developing
@@ -26,20 +28,7 @@ This tutorial will acquaint the first-time user of SciPy with some of its most
 important features. It assumes that the user has already installed the SciPy
 package. Some general Python facility is also assumed, such as could be
 acquired by working through the Python distribution's Tutorial. For further
-introductory help the user is directed to the Numpy documentation.
-
-For brevity and convenience, we will often assume that the main
-packages (numpy, scipy, and matplotlib) have been imported as::
-
-    >>> import numpy as np
-    >>> import matplotlib as mpl
-    >>> import matplotlib.pyplot as plt
-
-These are the import conventions that our community has adopted
-after discussion on public mailing lists.  You will see these
-conventions used throughout NumPy and SciPy source code and
-documentation.  While we obviously don't require you to follow
-these conventions in your own code, it is highly recommended.
+introductory help the user is directed to the NumPy documentation.
 
 SciPy Organization
 ------------------
@@ -47,29 +36,27 @@ SciPy Organization
 SciPy is organized into subpackages covering different scientific
 computing domains. These are summarized in the following table:
 
-.. currentmodule:: scipy
-
 ==================  ======================================================
 Subpackage          Description
 ==================  ======================================================
-:mod:`cluster`      Clustering algorithms
-:mod:`constants`    Physical and mathematical constants
-:mod:`fftpack`      Fast Fourier Transform routines
-:mod:`integrate`    Integration and ordinary differential equation solvers
-:mod:`interpolate`  Interpolation and smoothing splines
-:mod:`io`           Input and Output
-:mod:`linalg`       Linear algebra
-:mod:`ndimage`      N-dimensional image processing
-:mod:`odr`          Orthogonal distance regression
-:mod:`optimize`     Optimization and root-finding routines
-:mod:`signal`       Signal processing
-:mod:`sparse`       Sparse matrices and associated routines
-:mod:`spatial`      Spatial data structures and algorithms
-:mod:`special`      Special functions
-:mod:`stats`        Statistical distributions and functions
+`cluster`           Clustering algorithms
+`constants`         Physical and mathematical constants
+`fftpack`           Fast Fourier Transform routines
+`integrate`         Integration and ordinary differential equation solvers
+`interpolate`       Interpolation and smoothing splines
+`io`                Input and Output
+`linalg`            Linear algebra
+`ndimage`           N-dimensional image processing
+`odr`               Orthogonal distance regression
+`optimize`          Optimization and root-finding routines
+`signal`            Signal processing
+`sparse`            Sparse matrices and associated routines
+`spatial`           Spatial data structures and algorithms
+`special`           Special functions
+`stats`             Statistical distributions and functions
 ==================  ======================================================
 
-Scipy sub-packages need to be imported separately, for example::
+SciPy sub-packages need to be imported separately, for example::
 
     >>> from scipy import linalg, optimize
 
@@ -103,8 +90,8 @@ keywords and modules available to all of Python. Secondly, running the command
 signature, and documentation string.
 
 The pydoc method of ``help`` is sophisticated but uses a pager to display
-the text. Sometimes this can interfere with the terminal you are
-running the interactive session within. A numpy/scipy-specific help system
+the text. Sometimes this can interfere with the terminal within which you are
+running the interactive session. A numpy/scipy-specific help system
 is also available under the command ``numpy.info``. The signature and
 documentation string for the object passed to the ``help`` command are
 printed to standard output (or to a writeable object passed as the
@@ -115,9 +102,5 @@ in that module is printed. For example:
 
 .. literalinclude:: examples/1-1
 
-Another useful command is :func:`source`. When given a function
-written in Python as an argument, it prints out a listing of the
-source code for that function. This can be helpful in learning about
-an algorithm or understanding exactly what a function is doing with
-its arguments. Also don't forget about the Python command ``dir``
+Another useful command is ``dir``,
 which can be used to look at the namespace of a module or package.

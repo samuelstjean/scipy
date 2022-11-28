@@ -31,8 +31,6 @@ Black dashed line
     The line z = 0.7*|v| + 12
 
 """
-from __future__ import absolute_import, division, print_function
-
 import numpy as np
 import matplotlib.pyplot as plt
 
@@ -116,6 +114,7 @@ def main():
 
     plt.savefig('struve_convergence.png')
     plt.show()
+
 
 if __name__ == "__main__":
     main()

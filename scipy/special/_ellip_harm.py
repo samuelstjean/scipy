@@ -1,6 +1,3 @@
-from __future__ import division, print_function, absolute_import
-
-import threading
 import numpy as np
 
 from ._ufuncs import _ellip_harm
@@ -48,7 +45,7 @@ def ellip_harm(h2, k2, n, p, s, signm=1, signn=1):
     Notes
     -----
     The geometric interpretation of the ellipsoidal functions is
-    explained in [2]_, [3]_, [4]_.  The `signm` and `signn` arguments control the
+    explained in [2]_, [3]_, [4]_. The `signm` and `signn` arguments control the
     sign of prefactors for functions according to their type::
 
         K : +1
@@ -61,7 +58,7 @@ def ellip_harm(h2, k2, n, p, s, signm=1, signn=1):
     References
     ----------
     .. [1] Digital Library of Mathematical Functions 29.12
-       http://dlmf.nist.gov/29.12
+       https://dlmf.nist.gov/29.12
     .. [2] Bardhan and Knepley, "Computational science and
        re-discovery: open-source implementations of
        ellipsoidal harmonics for problems in potential theory",
@@ -82,6 +79,7 @@ def ellip_harm(h2, k2, n, p, s, signm=1, signn=1):
 
     Check that the functions indeed are solutions to the Lame equation:
 
+    >>> import numpy as np
     >>> from scipy.interpolate import UnivariateSpline
     >>> def eigenvalue(f, df, ddf):
     ...     r = ((s**2 - h**2)*(s**2 - k**2)*ddf + s*(2*s**2 - h**2 - k**2)*df - n*(n+1)*s**2*f)/f
@@ -159,6 +157,7 @@ def ellip_harm_2(h2, k2, n, p, s):
 
 def _ellip_normal_vec(h2, k2, n, p):
     return _ellipsoid_norm(h2, k2, n, p)
+
 
 _ellip_normal_vec = np.vectorize(_ellip_normal_vec, otypes='d')
 

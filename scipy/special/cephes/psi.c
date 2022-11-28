@@ -47,7 +47,7 @@
  *
  * ERROR MESSAGES:
  *     message         condition      value returned
- * psi singularity    x integer <=0      NPY_INFINITY
+ * psi singularity    x integer <=0      INFINITY
  */
 
 /*
@@ -61,7 +61,7 @@
  * (C) Copyright John Maddock 2006.
  * Use, modification and distribution are subject to the
  * Boost Software License, Version 1.0. (See accompanying file
- * LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
+ * LICENSE_1_0.txt or copy at https://www.boost.org/LICENSE_1_0.txt)
  */
 
 #include "mconf.h"
@@ -77,7 +77,7 @@ static double A[] = {
 };
 
 
-double digamma_imp_1_2(double x)
+static double digamma_imp_1_2(double x)
 {
     /*
      * Rational approximation on [1, 2] taken from Boost.
@@ -127,7 +127,7 @@ double digamma_imp_1_2(double x)
 }
 
 
-double psi_asy(double x)
+static double psi_asy(double x)
 {
     double y, z;
 
@@ -149,27 +149,27 @@ double psi(double x)
     double q, r;
     int i, n;
 
-    if (npy_isnan(x)) {
+    if (isnan(x)) {
 	return x;
     }
-    else if (x == NPY_INFINITY) {
+    else if (x == INFINITY) {
 	return x;
     }
-    else if (x == -NPY_INFINITY) {
-	return NPY_NAN;
+    else if (x == -INFINITY) {
+	return NAN;
     }
     else if (x == 0) {
-	mtherr("psi", SING);
-	return npy_copysign(NPY_INFINITY, -x);
+	sf_error("psi", SF_ERROR_SINGULAR, NULL);
+	return copysign(INFINITY, -x);
     }
     else if (x < 0.0) {
 	/* argument reduction before evaluating tan(pi * x) */
 	r = modf(x, &q);
 	if (r == 0.0) {
-	    mtherr("psi", SING);
-	    return NPY_NAN;
+	    sf_error("psi", SF_ERROR_SINGULAR, NULL);
+	    return NAN;
 	}
-	y = -NPY_PI / tan(NPY_PI * r);
+	y = -M_PI / tan(M_PI * r);
 	x = 1.0 - x;
     }
 
@@ -179,7 +179,7 @@ double psi(double x)
 	for (i = 1; i < n; i++) {
 	    y += 1.0 / i;
 	}
-	y -= NPY_EULER;
+	y -= SCIPY_EULER;
 	return y;
     }
 
