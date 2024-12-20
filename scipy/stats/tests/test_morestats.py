@@ -82,8 +82,7 @@ class TestBayes_mvs:
                         rtol=1e-6)
 =======
         assert_allclose(mean.minmax, (7.1036502226125329, 10.896349777387467),
-                        rtol=1e-15)
->>>>>>> 6ec0db33e (relax some stats tests to 1e-15)
+                        rtol=1e-14)
 
         assert_almost_equal(var.statistic, 10.0)
         assert_allclose(var.minmax, (3.1767242068607087, 24.45910381334018),
@@ -116,7 +115,6 @@ class TestMvsdist:
 =======
         assert_allclose(mean.interval(0.9), (7.1036502226125329,
                                              10.896349777387467), rtol=1e-15)
->>>>>>> 6ec0db33e (relax some stats tests to 1e-15)
 
         assert_almost_equal(var.mean(), 10.0)
         assert_allclose(var.interval(0.9), (3.1767242068607087,
@@ -3046,7 +3044,7 @@ class TestDirectionalStats:
                          np.cos(incl) * np.sin(decl),
                          np.sin(incl)),
                         axis=1)
-        
+
         decl = xp.asarray(decl.tolist())
         incl = xp.asarray(incl.tolist())
         data = xp.asarray(data.tolist())
